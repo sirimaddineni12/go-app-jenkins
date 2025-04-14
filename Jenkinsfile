@@ -1,33 +1,35 @@
 pipeline {
     agent any
 
-    tools {
-        go 'Go 1.20' // Replace with the name of Go version installed in Jenkins
-    }
-
     stages {
-        stage('Checkout') {
+        stage('Checkout Code') {
             steps {
-                git 'https://github.com/your-username/your-go-repo.git'
+                git 'https://github.com/sirimaddineni12/go-app-jenkins.git'
             }
         }
 
-        stage('Build') {
+        stage('Install Go') {
             steps {
-                sh 'go build -v'
+                sh 'sudo apt-get update && sudo apt-get install -y golang'
             }
         }
 
-        stage('Test') {
+        stage('Build Go Application') {
             steps {
-                sh 'go test -v ./...'
+                sh 'go build -o app main.go'
             }
         }
-    }
 
-    post {
-        always {
-            echo 'Pipeline finished.'
+        stage('Run Tests') {
+            steps {
+                sh 'go test'
+            }
+        }
+
+        stage('Run Application') {
+            steps {
+                sh './app'
+            }
         }
     }
 }

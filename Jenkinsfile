@@ -1,35 +1,60 @@
 pipeline {
     agent any
 
+    environment {
+        GO111MODULE = 'on'
+        GOPATH = "${env.WORKSPACE}/go"
+        PATH = "${env.PATH}:${env.GOPATH}/bin"
+    }
+
     stages {
         stage('Checkout Code') {
             steps {
-                git branch: 'main', url: 'https://github.com/sirimaddineni12/go-app-jenkins.git'
+                git url: 'https://github.com/sirimaddineni12/go-app-jenkins.git', branch: 'main'
             }
         }
 
         stage('Install Go') {
             steps {
-                sh 'apt-get update && apt-get install -y golang'
+                sh '''
+                    echo "Updating packages..."
+                    sudo yum update -y
+                    
+                    echo "Installing Go..."
+                    sudo yum install -y golang
+                    
+                    echo "Go version:"
+                    go version
+                '''
             }
         }
 
         stage('Build Go Application') {
             steps {
-                sh 'go build -o app main.go'
+                sh '''
+                    echo "Building Go application..."
+                    go build -o myapp main.go
+                '''
             }
         }
 
         stage('Run Tests') {
             steps {
-                sh 'go test'
+                sh '''
+                    echo "Running Go tests..."
+                    go test ./...
+                '''
             }
         }
 
         stage('Run Application') {
             steps {
-                sh './app'
+                sh '''
+                    echo "Running the Go application..."
+                    ./myapp &
+                '''
             }
         }
     }
 }
+
